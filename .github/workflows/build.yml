@@ -1,0 +1,36 @@
+name: Build and Test bat
+
+on:
+  push:
+    branches:
+      - ino_dev
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: '1.75.0'
+
+    - name: Install build dependencies
+      run: sudo apt-get update && sudo apt-get install -y git
+
+    - name: Clone bat repository
+      run: |
+        git clone --recursive https://github.com/sharkdp/bat /tmp/bat
+        cd /tmp/bat
+        cargo build --release
+
+    - name: Run tests
+      run: |
+        cd /tmp/bat
+        cargo test
+
+    - name: Upload bat binary as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bat-binary
+        path: /tmp/bat/target/release/bat
